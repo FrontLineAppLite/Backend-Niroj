@@ -15,16 +15,16 @@ jobs:
 
       # Step 2: Configure AWS Credentials using the secrets we created
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1  # or your region
+          aws-region: us-east-2  # or your region
 
       # Step 3: Log in to ECR
       - name: Log in to Amazon ECR
         run: |
-          aws ecr get-login-password --region us-east-1 \
+          aws ecr get-login-password --region us-east-2 \
           | docker login --username AWS \
           --password-stdin 977098993462.dkr.ecr.us-east-2.amazonaws.com
 
@@ -47,3 +47,4 @@ jobs:
             --service auth-service-prod \
             --force-new-deployment \
             --region us-east-2
+
