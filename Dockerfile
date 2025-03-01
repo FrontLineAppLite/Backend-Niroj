@@ -1,19 +1,20 @@
+# Use an official Node runtime as a base image
 FROM node:16-alpine
 
-# 1. Set the working directory in the container
+# Set the working directory in the container
 WORKDIR /usr/src/app
 
-# 2. Copy package.json and package-lock.json into the container
+# Copy package.json and package-lock.json into the container
 COPY package*.json ./
 
-# 3. Install dependencies
+# Install dependencies
 RUN npm install
 
-# 4. Copy the rest of your application files
+# Copy the rest of the application files
 COPY . .
 
-# 5. Expose port 3000
+# Expose port 3000
 EXPOSE 3000
 
-# 6. Start your application
-CMD [ "node", "src/server.js" ]
+# Start the application using npm start for better flexibility
+CMD ["npm", "start"]
