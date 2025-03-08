@@ -1,15 +1,16 @@
+// src/server.js
 const express = require('express');
 const path = require('path');
-const app = require('./app'); // Assuming `app` contains other routes/middleware
+const app = require('./app');
 
 const PORT = process.env.PORT || 3000;
 
 // Serve static files from the "public" folder
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../public')));
 
 // Landing page route
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, '../public', 'index.html'));
 });
 
 app.listen(PORT, () => {

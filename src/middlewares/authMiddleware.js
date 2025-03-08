@@ -1,7 +1,6 @@
+// src/middlewares/authMiddleware.js
 const jwt = require('jsonwebtoken');
-const knex = require('knex');
-const config = require('../../knexfile');
-const db = knex(config[process.env.NODE_ENV || 'development']);
+const User = require('../models/User');
 
 async function requireAuth(req, res, next) {
   try {
@@ -12,14 +11,15 @@ async function requireAuth(req, res, next) {
     }
 
     const payload = jwt.verify(token, process.env.JWT_SECRET);
-    // Optionally load user from DB
-    const user = await db('users').where({ id: payload.userId }).first();
+    // Load user from MongoDB
+    const user = await User.findById(payload.userId).exec();
     if (!user) throw new Error('User not found');
 
+    // Attach user info to request
     req.user = {
-      id: user.id,
+      id: user._id,
       email: user.email,
-      roles: payload.roles, // or fetch from DB
+      roles: payload.roles, // If your token includes roles
     };
 
     next();
