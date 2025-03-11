@@ -4,33 +4,36 @@ const User = require('../models/User');
 const Role = require('../models/Role');         // If you need roles
 const Permission = require('../models/Permission'); // If you need permissions
 const tokenUtils = require('../utils/tokenUtils');
+const mongoose = require('mongoose');
 
 /**
  * register():
  * - Called if you want to store local user data AFTER Okta user is created
  */
-async function register({ email, firstName, lastName, roleId, oktaId }) {
-  // 1. Create a new user doc in Mongo
+async function register({ email, firstName, lastName, roleName, oktaId }) {
+  // 1. Create a new user in Mongo
   const newUser = await User.create({
     email,
     firstName,
     lastName,
-    authProviderId: oktaId,
+    authProviderId: oktaId
   });
 
-  // 2. If a roleId is provided, you might fetch the role and assign it:
-  // This is highly dependent on your data model
-  if (roleId) {
-    const role = await Role.findById(roleId);
+  // 2. If a roleName is provided, find (or create) that role
+  if (roleName) {
+    let role = await Role.findOne({ name: roleName });
     if (!role) {
-      throw new Error('Role not found');
+      // If no such role in DB, create it on the fly
+      role = await Role.create({
+        name: roleName,
+        description: `Auto-created role: ${roleName}`
+      });
     }
-
-    // If you store roles in the User document:
-    // newUser.roles.push(role._id);
-    // await newUser.save();
-
-    // Alternatively, keep a separate "UserRole" doc or something else
+    // 3. Assign the role to this user
+    // Assuming "roles" is an array on the user model:
+    newUser.roles.push(role._id);
+    // If you only want one role, do: newUser.role = role._id;
+    await newUser.save();
   }
 
   return { message: 'User registered via Okta', userId: newUser._id };
