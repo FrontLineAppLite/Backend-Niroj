@@ -1,19 +1,69 @@
 version: '3.8'
 services:
+  # 1) Auth microservice container
   auth-service:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile      # The Dockerfile in Frontline-Backend/ (for Auth)
     container_name: auth_microservice
     ports:
       - "3000:3000"
     environment:
-      - NODE_ENV=development
-      - MONGO_URL=mongodb://db:27017/auth_service_dev
-      - JWT_SECRET=MySuperSecretKey
+      NODE_ENV: development
+      MONGO_URL: mongodb://authdb:27017/auth_service_dev
+      JWT_SECRET: MySuperSecretKey
     depends_on:
-      - db
+      - authdb
 
-  db:
+  # 2) Database for Auth (remapped host port to avoid conflict)
+  authdb:
     image: mongo:6
     container_name: auth_db
     ports:
-      - "27017:27017"
+      - "27020:27017"  # ✅ Host port changed to avoid port conflict
+
+  # 3) Messaging microservice container
+  messaging-service:
+    build:
+      context: ./messaging       # The Dockerfile is inside messaging folder
+      dockerfile: Dockerfile
+    container_name: messaging_service
+    ports:
+      - "4000:4000"
+    environment:
+      PORT: 4000
+      MONGO_URI: mongodb://messagedb:27017/messaging_service
+      JWT_SECRET: anotherSecretForMessaging
+      LOG_LEVEL: debug
+      AUTH_SERVICE_URL: http://auth-service:3000
+    depends_on:
+      - messagedb
+      - auth-service
+
+  # 4) Database for Messaging
+  messagedb:
+    image: mongo:6
+    container_name: messaging_db
+    ports:
+      - "27018:27017"
+
+  # 5) Task microservice container
+  task-service:
+    build:
+      context: ./task-service
+      dockerfile: Dockerfile
+    container_name: task_service
+    ports:
+      - "5000:5000"
+    environment:
+      MONGO_URI: mongodb://taskdb:27017/task_service
+    depends_on:
+      - taskdb
+
+  # 6) Database for Task microservice
+  taskdb:
+    image: mongo:6
+    container_name: task_db
+    ports:
+      - "27019:27017"
+

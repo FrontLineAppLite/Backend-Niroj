@@ -46,7 +46,14 @@ router.get('/verify', async (req, res) => {
     const authHeader = req.headers.authorization || '';
     const token = authHeader.replace('Bearer ', '');
     const user = await authService.verifyToken(token);
-    return res.json({ valid: true, user });
+    return res.json({
+  	valid: true,
+  	user: {
+    		id: user.user._id,
+    		email: user.user.email,
+    		// etc...
+  		}
+	});
   } catch (error) {
     return res.status(401).json({ valid: false, error: error.message });
   }

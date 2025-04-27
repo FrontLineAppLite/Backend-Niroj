@@ -7,8 +7,7 @@ const UserSchema = new mongoose.Schema({
   firstName: String,
   lastName: String,
   status: { type: String, default: 'active' },
-  // If you want to store the user's roles directly here, you could do:
-  // roles: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Role' }],
+  roles: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Role' }], // array of roles
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });

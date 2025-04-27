@@ -1,4 +1,3 @@
-// src/app.js
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -20,3 +19,4 @@ app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
 
 module.exports = app;
+
