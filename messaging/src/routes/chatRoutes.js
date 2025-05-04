@@ -36,4 +36,11 @@ router.patch(
   chatController.markMessageAsRead
 );
 
+router.get(
+  '/direct/list',
+  authMiddleware,
+  async (req, res) => {
+    res.json([]);              // TODO: build real preview query
+  }
+);
 module.exports = router;

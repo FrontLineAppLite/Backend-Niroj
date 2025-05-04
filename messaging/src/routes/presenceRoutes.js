@@ -24,4 +24,13 @@ router.get(
   presenceController.getPresence
 );
 
+router.get(
+  '/all',
+  authMiddleware,
+  async (req, res) => {
+    const Presence = require('../models/Presence');
+    const list = await Presence.find({});
+    res.json(list);
+  }
+);
 module.exports = router;
