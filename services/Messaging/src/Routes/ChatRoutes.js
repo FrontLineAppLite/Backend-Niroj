@@ -1,10 +1,10 @@
 const express = require('express');
-const router = express.Router();
-const authMiddleware = require('@frontline/common').auth;
-const {
-  validateBody,
-  validateParams
-} = require('@frontline/common').validate;
+const router  = express.Router();
+
+const auth = require('@frontline/common').auth;
+router.use(auth);                                  // attach once
+
+const { validateBody, validateParams } = require('@frontline/common').validate;
 const {
   sendDirectMessageSchema,
   recipientParamSchema,
@@ -13,34 +13,21 @@ const {
 const chatController = require('../controllers/chatController');
 
 // POST /api/chats/direct
-router.post(
-  '/direct',
-  authMiddleware,
+router.post('/direct',
   validateBody(sendDirectMessageSchema),
-  chatController.sendDirectMessage
-);
+  chatController.sendDirectMessage);
 
 // GET /api/chats/direct/:recipientId
-router.get(
-  '/direct/:recipientId',
-  authMiddleware,
+router.get('/direct/:recipientId',
   validateParams(recipientParamSchema),
-  chatController.getDirectMessages
-);
+  chatController.getDirectMessages);
 
 // PATCH /api/chats/read/:messageId
-router.patch(
-  '/read/:messageId',
-  authMiddleware,
+router.patch('/read/:messageId',
   validateParams(messageParamSchema),
-  chatController.markMessageAsRead
-);
+  chatController.markMessageAsRead);
 
-router.get(
-  '/direct/list',
-  authMiddleware,
-  async (req, res) => {
-    res.json([]);              // TODO: build real preview query
-  }
-);
+// DEV placeholder
+router.get('/direct/list', async (_req, res) => res.json([]));
+
 module.exports = router;

@@ -11,14 +11,15 @@ services:
       - mongo-data:/data/db
 
   # ───────────────────────── Auth ────────────────────────────
-  auth:                           # ◀ OUTDENT to same level as mongo
+  auth:
     build:
       context: .
       dockerfile: services/auth/Dockerfile
     env_file: ./services/auth/.env
     environment:
-      UPLOAD_DIR: /home/node/uploads
-    depends_on:                   # ◀ no “condition” in Compose v3.9
+      - MONGO_URI=mongodb://mongo:27017/frontline
+      - UPLOAD_DIR=/home/node/uploads
+    depends_on:
       - mongo
     volumes:
       - auth-uploads:/home/node/uploads
@@ -31,13 +32,18 @@ services:
       context: .
       dockerfile: services/messaging/Dockerfile
     env_file: ./services/messaging/.env
-    environment:               # ← add this block
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/frontline
+      - PORT=5000
       - UPLOAD_DIR=/home/node/uploads
-      - BYPASS_AUTH=1          # still in dev mode
-    volumes:                   # ← and this
+      - BYPASS_AUTH=1          # skip JWT while you debug
+    volumes:
       - messaging-uploads:/home/node/uploads
-    depends_on: [mongo, auth]
-    ports: ["5000:5000"]
+    depends_on:
+      - mongo
+      - auth
+    ports:
+      - "5000:5000"
 
   # ───────────────────────── Task ────────────────────────────
   task:
@@ -45,20 +51,24 @@ services:
       context: .
       dockerfile: services/task/Dockerfile
     env_file: ./services/task/.env
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/frontline
+      - UPLOAD_DIR=/home/node/uploads
     depends_on:
       - mongo
       - auth
     ports:
       - "5001:5001"
 
-  # ───────────────────────── Alert ────────────────────────────
+  # ───────────────────────── Alert ───────────────────────────
   alert:
     build:
       context: .
       dockerfile: services/alert/Dockerfile
     env_file: ./services/alert/.env
     environment:
-      UPLOAD_DIR: /home/node/uploads        # ◀ map–style for consistency
+      - MONGO_URI=mongodb://mongo:27017/frontline
+      - UPLOAD_DIR=/home/node/uploads
     volumes:
       - alert-uploads:/home/node/uploads
     depends_on:
@@ -67,14 +77,15 @@ services:
     ports:
       - "5100:5100"
 
-  # ───────────────────────── Announcement ────────────────────
+  # ───────────────────────── Announcement ───────────────────
   announcement:
     build:
       context: .
       dockerfile: services/announcement/Dockerfile
     env_file: ./services/announcement/.env
     environment:
-      UPLOAD_DIR: /home/node/uploads
+      - MONGO_URI=mongodb://mongo:27017/frontline
+      - UPLOAD_DIR=/home/node/uploads
     volumes:
       - announcement-uploads:/home/node/uploads
     depends_on:
@@ -83,14 +94,15 @@ services:
     ports:
       - "5200:5200"
 
-  # ───────────────────────── Shift ────────────────────────────
+  # ───────────────────────── Shift ───────────────────────────
   shift:
     build:
       context: .
       dockerfile: services/shift/Dockerfile
     env_file: ./services/shift/.env
     environment:
-      UPLOAD_DIR: /home/node/uploads
+      - MONGO_URI=mongodb://mongo:27017/frontline
+      - UPLOAD_DIR=/home/node/uploads
     volumes:
       - shift-uploads:/home/node/uploads
     depends_on:
@@ -106,4 +118,4 @@ volumes:
   alert-uploads:
   announcement-uploads:
   shift-uploads:
-  messaging-uploads: 
+  messaging-uploads:
