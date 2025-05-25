@@ -19,6 +19,7 @@ services:
     environment:
       - MONGO_URI=mongodb://mongo:27017/frontline
       - UPLOAD_DIR=/home/node/uploads
+      - BYPASS_AUTH=1          # skip JWT while you debug
     depends_on:
       - mongo
     volumes:
@@ -54,6 +55,7 @@ services:
     environment:
       - MONGO_URI=mongodb://mongo:27017/frontline
       - UPLOAD_DIR=/home/node/uploads
+      - BYPASS_AUTH=1          # skip JWT while you debug
     depends_on:
       - mongo
       - auth
@@ -69,6 +71,7 @@ services:
     environment:
       - MONGO_URI=mongodb://mongo:27017/frontline
       - UPLOAD_DIR=/home/node/uploads
+      - BYPASS_AUTH=1          # skip JWT while you debug
     volumes:
       - alert-uploads:/home/node/uploads
     depends_on:
@@ -86,6 +89,7 @@ services:
     environment:
       - MONGO_URI=mongodb://mongo:27017/frontline
       - UPLOAD_DIR=/home/node/uploads
+      - BYPASS_AUTH=1          # skip JWT while you debug
     volumes:
       - announcement-uploads:/home/node/uploads
     depends_on:
@@ -103,6 +107,7 @@ services:
     environment:
       - MONGO_URI=mongodb://mongo:27017/frontline
       - UPLOAD_DIR=/home/node/uploads
+      - BYPASS_AUTH=1          # skip JWT while you debug
     volumes:
       - shift-uploads:/home/node/uploads
     depends_on:
