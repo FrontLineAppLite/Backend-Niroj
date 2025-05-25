@@ -1,0 +1,1 @@
+module.exports = console;   // simplest possible placeholder

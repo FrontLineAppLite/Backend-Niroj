@@ -1,0 +1,19 @@
+{
+    "name": "@frontline/announcement",
+    "version": "1.0.0",
+    "main": "src/index.js",
+    "scripts": {
+      "dev":   "nodemon src/index.js",
+      "start": "node src/index.js",
+      "build": "echo \"nothing to build\""
+    },
+    "dependencies": {
+      "@frontline/common": "*",
+      "@frontline/config": "*",
+      "express": "^4.19.2",
+      "mongoose": "^8.1.0",
+      "dotenv": "^16.4.5",
+      "cors": "^2.8.5"
+    },
+    "devDependencies": { "nodemon": "^3.0.2" }
+  }

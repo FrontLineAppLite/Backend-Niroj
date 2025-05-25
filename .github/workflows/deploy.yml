@@ -47,4 +47,3 @@ jobs:
             --service auth-service-prod \
             --force-new-deployment \
             --region us-east-2
-

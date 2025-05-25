@@ -1,0 +1,21 @@
+# ── ignore local junk ─────────────────────────────────────────
+node_modules
+**/node_modules
+
+# OS & editor cruft
+.DS_Store
+*.swp
+*.log
+
+# Git
+.git
+.gitignore
+
+# Env / secrets
+*.env
+
+# Docs
+README.md
+*.md
+
+# Anything else you never want in the image

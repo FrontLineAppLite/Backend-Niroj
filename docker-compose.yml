@@ -1,69 +1,109 @@
-version: '3.8'
+version: "3.9"
+
 services:
-  # 1) Auth microservice container
-  auth-service:
+  # ───────────────────────── MongoDB ─────────────────────────
+  mongo:
+    image: mongo:7
+    container_name: frontline_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  # ───────────────────────── Auth ────────────────────────────
+  auth:                           # ◀ OUTDENT to same level as mongo
     build:
       context: .
-      dockerfile: Dockerfile      # The Dockerfile in Frontline-Backend/ (for Auth)
-    container_name: auth_microservice
-    ports:
-      - "3000:3000"
+      dockerfile: services/auth/Dockerfile
+    env_file: ./services/auth/.env
     environment:
-      NODE_ENV: development
-      MONGO_URL: mongodb://authdb:27017/auth_service_dev
-      JWT_SECRET: MySuperSecretKey
-    depends_on:
-      - authdb
-
-  # 2) Database for Auth (remapped host port to avoid conflict)
-  authdb:
-    image: mongo:6
-    container_name: auth_db
-    ports:
-      - "27020:27017"  # ✅ Host port changed to avoid port conflict
-
-  # 3) Messaging microservice container
-  messaging-service:
-    build:
-      context: ./messaging       # The Dockerfile is inside messaging folder
-      dockerfile: Dockerfile
-    container_name: messaging_service
+      UPLOAD_DIR: /home/node/uploads
+    depends_on:                   # ◀ no “condition” in Compose v3.9
+      - mongo
+    volumes:
+      - auth-uploads:/home/node/uploads
     ports:
       - "4000:4000"
-    environment:
-      PORT: 4000
-      MONGO_URI: mongodb://messagedb:27017/messaging_service
-      JWT_SECRET: anotherSecretForMessaging
-      LOG_LEVEL: debug
-      AUTH_SERVICE_URL: http://auth-service:3000
-    depends_on:
-      - messagedb
-      - auth-service
 
-  # 4) Database for Messaging
-  messagedb:
-    image: mongo:6
-    container_name: messaging_db
-    ports:
-      - "27018:27017"
-
-  # 5) Task microservice container
-  task-service:
+  # ───────────────────────── Messaging ───────────────────────
+  messaging:
     build:
-      context: ./task-service
-      dockerfile: Dockerfile
-    container_name: task_service
-    ports:
-      - "5000:5000"
-    environment:
-      MONGO_URI: mongodb://taskdb:27017/task_service
+      context: .
+      dockerfile: services/messaging/Dockerfile
+    env_file: ./services/messaging/.env
+    environment:               # ← add this block
+      - UPLOAD_DIR=/home/node/uploads
+      - BYPASS_AUTH=1          # still in dev mode
+    volumes:                   # ← and this
+      - messaging-uploads:/home/node/uploads
+    depends_on: [mongo, auth]
+    ports: ["5000:5000"]
+
+  # ───────────────────────── Task ────────────────────────────
+  task:
+    build:
+      context: .
+      dockerfile: services/task/Dockerfile
+    env_file: ./services/task/.env
     depends_on:
-      - taskdb
-
-  # 6) Database for Task microservice
-  taskdb:
-    image: mongo:6
-    container_name: task_db
+      - mongo
+      - auth
     ports:
-      - "27019:27017"
+      - "5001:5001"
 
+  # ───────────────────────── Alert ────────────────────────────
+  alert:
+    build:
+      context: .
+      dockerfile: services/alert/Dockerfile
+    env_file: ./services/alert/.env
+    environment:
+      UPLOAD_DIR: /home/node/uploads        # ◀ map–style for consistency
+    volumes:
+      - alert-uploads:/home/node/uploads
+    depends_on:
+      - mongo
+      - auth
+    ports:
+      - "5100:5100"
+
+  # ───────────────────────── Announcement ────────────────────
+  announcement:
+    build:
+      context: .
+      dockerfile: services/announcement/Dockerfile
+    env_file: ./services/announcement/.env
+    environment:
+      UPLOAD_DIR: /home/node/uploads
+    volumes:
+      - announcement-uploads:/home/node/uploads
+    depends_on:
+      - mongo
+      - auth
+    ports:
+      - "5200:5200"
+
+  # ───────────────────────── Shift ────────────────────────────
+  shift:
+    build:
+      context: .
+      dockerfile: services/shift/Dockerfile
+    env_file: ./services/shift/.env
+    environment:
+      UPLOAD_DIR: /home/node/uploads
+    volumes:
+      - shift-uploads:/home/node/uploads
+    depends_on:
+      - mongo
+      - auth
+    ports:
+      - "5300:5300"
+
+# ───────────────────────── Volumes ───────────────────────────
+volumes:
+  mongo-data:
+  auth-uploads:
+  alert-uploads:
+  announcement-uploads:
+  shift-uploads:
+  messaging-uploads: 
