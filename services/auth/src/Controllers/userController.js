@@ -1,5 +1,7 @@
 const router = require('express').Router();
 const requireAuth = require('@frontline/common').auth;
+const { tokenUtils } = require('@frontline/common');
+const { verifyToken } = tokenUtils;
 
 // Example route to get profile data
 router.get('/me', requireAuth, async (req, res) => {

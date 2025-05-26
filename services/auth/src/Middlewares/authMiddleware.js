@@ -1,6 +1,8 @@
 // src/middlewares/authMiddleware.js
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { tokenUtils } = require('@frontline/common');
+const { verifyToken } = tokenUtils;
 
 async function requireAuth(req, res, next) {
   try {

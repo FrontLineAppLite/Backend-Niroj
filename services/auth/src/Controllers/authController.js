@@ -1,5 +1,7 @@
 const router      = require('express').Router();
 const authService = require('../utils/authService');
+const { tokenUtils } = require('@frontline/common');
+const { verifyToken } = tokenUtils;
 
 // POST /auth/register
 router.post('/register', async (req, res) => {
